@@ -375,8 +375,7 @@ function renderTasks(){
         </div>
       </div>
       <div class="task-step-label">${t.stepLabel} - Step ${t.step}/5</div>
-      <div class="task-message" id="tm-${ti}" onclick="toggleMsg('tm-${ti}')">${(t.message||'').replace(/
-/g,'<br>')}<div class="msg-fade"></div></div>
+      <div class="task-message" id="tm-${ti}" onclick="toggleMsg('tm-${ti}')">${(t.message||'').replace(/\n/g,'<br>')}<div class="msg-fade"></div></div>
       <div class="task-actions">
         <button class="copy-btn" onclick="copyText(${JSON.stringify(t.message||'')})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
         <button class="done-btn" id="db-${ti}" onclick="markTaskDone(${ti},'${encodeURIComponent(t.prospectName)}','${encodeURIComponent(t.company)}',${t.step})">Mark as sent</button>
@@ -542,8 +541,7 @@ function buildProspectCards(prospects,companyName,isArchived){
             ${t.outcome?`<span class="sent-date"> ${t.outcome}</span>`:''}
           </div>
         </div>
-        <div class="message-text" id="mt-${idx}-${mb.step}" onclick="toggleMsg('mt-${idx}-${mb.step}')">${msg.replace(/
-/g,'<br>')||'<em style="color:var(--text3)">No message</em>'}<div class="message-text-fade"></div></div>
+        <div class="message-text" id="mt-${idx}-${mb.step}" onclick="toggleMsg('mt-${idx}-${mb.step}')">${msg.replace(/\n/g,'<br>')||'<em style="color:var(--text3)">No message</em>'}<div class="message-text-fade"></div></div>
         <div class="message-actions">
           ${msg?`<button class="copy-btn" onclick="copyText(${JSON.stringify(msg)})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>`:''}
           ${!isDone&&!isArchived?`<button class="done-btn" id="cdb-${idx}-${mb.step}" onclick="markCompanyDone('${encodeURIComponent(p.name)}','${encodeURIComponent(companyName)}',${mb.step},'${idx}')">Mark as sent</button>`:(isDone?'<span class="badge badge-green">Sent</span>':'')}
