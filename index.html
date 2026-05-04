@@ -614,10 +614,15 @@ function selectCompanyOutcome(idx,step,type,ep,ec){
     });
   }else{
     if(!document.getElementById('cdp-'+idx+'-'+step)){
-      od.innerHTML='<div class="date-picker-row"><input type="date" id="cdp-'+idx+'-'+step+'"/><button class="save-outcome-btn" onclick="saveCompanyOutcome(''+idx+'','+step+',''+ep+'',''+ec+'',''+type+'')">Save</button></div>';
-    }else{
-      const btn=od.querySelector('.save-outcome-btn');
-      if(btn)btn.setAttribute('onclick',"saveCompanyOutcome('"+idx+"',"+step+",'"+ep+"','"+ec+"','"+type+"')");
+      const dpId='cdp-'+idx+'-'+step;
+      const div=document.createElement('div');
+      div.className='date-picker-row';
+      const inp=document.createElement('input');
+      inp.type='date';inp.id=dpId;
+      const btn2=document.createElement('button');
+      btn2.className='save-outcome-btn';btn2.textContent='Save';
+      btn2.onclick=function(){saveCompanyOutcome(idx,step,ep,ec,type);};
+      div.appendChild(inp);div.appendChild(btn2);od.appendChild(div);
     }
   }
 }
