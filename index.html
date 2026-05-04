@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spark — SAP Outreach Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#f5f4f0;--surface:#fff;--surface2:#f0efe9;--border:#e2e0d8;
+  --text:#1a1917;--text2:#6b6860;--text3:#9b9890;
+  --accent:#5b4fff;--accent-light:#ede9ff;
+  --green:#16a34a;--green-light:#dcfce7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --orange:#ea580c;--orange-light:#fff7ed;
+  --radius:12px;--radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,.08),0 1px 2px rgba(0,0,0,.06);
+  --sidebar-w:240px;--font:'DM Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:100vh;display:flex;font-size:14px}
+.sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.sidebar-logo{padding:20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-icon{width:36px;height:36px;background:var(--accent);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:20px;height:20px;fill:white}
+.logo-text h1{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.logo-text p{font-size:11px;color:var(--text3)}
+.sidebar-nav{flex:1;padding:12px 8px;overflow-y:auto}
+.nav-section{margin-bottom:20px}
+.nav-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;padding:0 8px;margin-bottom:4px}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--radius-sm);cursor:pointer;color:var(--text2);font-size:13.5px;font-weight:500;transition:all .15s;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-light);color:var(--accent)}
+.nav-item svg{width:16px;height:16px;flex-shrink:0}
+.sidebar-user{padding:12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.user-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:white;font-size:12px;font-weight:700;flex-shrink:0}
+.user-info{flex:1;min-width:0}
+.user-name{font-size:13px;font-weight:600}
+.user-plan{font-size:11px;color:var(--text3)}
+.theme-btn{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.theme-btn svg{width:14px;height:14px;fill:var(--text2)}
+.main{margin-left:var(--sidebar-w);flex:1;min-height:100vh;display:flex;flex-direction:column}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 28px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-title{font-size:18px;font-weight:700;letter-spacing:-.3px}
+.topbar-sub{font-size:12px;color:var(--text3);margin-top:1px}
+.topbar-right{display:flex;gap:10px;align-items:center}
+.upload-btn{display:flex;align-items:center;gap:6px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:var(--font);transition:opacity .15s}
+.upload-btn:hover{opacity:.9}
+.download-btn{display:flex;align-items:center;gap:6px;background:var(--surface);color:var(--text2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 14px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font);transition:all .15s}
+.download-btn:hover{border-color:var(--accent);color:var(--accent)}
+.page-content{padding:24px 28px;flex:1}
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow)}
+.metric-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px}
+.metric-value{font-size:32px;font-weight:700;letter-spacing:-1px;line-height:1;margin-bottom:6px}
+.metric-sub{font-size:12px;color:var(--green);font-weight:500}
+.metric-sub.orange{color:var(--orange)}
+.panels-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px}
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.panel-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:14px;font-weight:600}
+.panel-link{font-size:12px;color:var(--accent);cursor:pointer;font-weight:500}
+.panel-body{padding:16px 20px}
+.empty-state{text-align:center;padding:24px;color:var(--text3);font-size:13px}
+.company-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.company-item:last-child{border-bottom:none}
+.company-item:hover .company-name{color:var(--accent)}
+.company-name{font-size:13.5px;font-weight:600}
+.company-meta{font-size:12px;color:var(--text3);margin-top:2px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-green{background:var(--green-light);color:var(--green)}
+.badge-orange{background:var(--orange-light);color:var(--orange)}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-purple{background:var(--accent-light);color:var(--accent)}
+.badge-gray{background:var(--surface2);color:var(--text2)}
+.task-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:12px;box-shadow:var(--shadow)}
+.task-card.overdue{border-left:3px solid var(--red)}
+.task-card.due-today{border-left:3px solid var(--orange)}
+.task-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px}
+.task-prospect{font-size:14px;font-weight:600}
+.task-company{font-size:12px;color:var(--text3);margin-top:2px}
+.task-contact{display:flex;gap:16px;margin-bottom:10px;flex-wrap:wrap}
+.task-contact-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.task-step-label{font-size:11px;font-weight:600;color:var(--accent);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.task-message{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;font-size:13px;line-height:1.6;color:var(--text2);margin-bottom:12px;position:relative;max-height:80px;overflow:hidden;cursor:pointer;transition:max-height .3s}
+.task-message.expanded{max-height:400px}
+.msg-fade{position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,var(--surface2))}
+.task-message.expanded .msg-fade{display:none}
+.task-actions{display:flex;gap:8px;align-items:center}
+.copy-btn{display:flex;align-items:center;gap:5px;padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text2);font-family:var(--font);transition:all .15s}
+.copy-btn:hover{border-color:var(--accent);color:var(--accent)}
+.done-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font);transition:all .15s}
+.done-btn:hover{opacity:.9}
+.done-btn.success{background:var(--green)}
+.done-btn:disabled{opacity:.6;cursor:not-allowed}
+.outcome-panel{display:none;background:var(--surface2);border-radius:var(--radius-sm);padding:14px;margin-top:10px;border:1px solid var(--border)}
+.outcome-panel.open{display:block;animation:slideDown .2s ease}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.outcome-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:10px}
+.outcome-options{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.outcome-opt{padding:6px 12px;border:1px solid var(--border);border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;background:var(--surface);color:var(--text2);font-family:var(--font);transition:all .15s}
+.outcome-opt:hover{border-color:var(--accent);color:var(--accent)}
+.outcome-opt.selected{background:var(--accent);color:white;border-color:var(--accent)}
+.date-picker-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.date-picker-row input[type=date]{flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:var(--font);background:var(--surface);color:var(--text)}
+.save-outcome-btn{padding:7px 14px;background:var(--accent);color:white;border:none;border-radius:var(--radius-sm);font-size:12px;font-weight:600;cursor:pointer;font-family:var(--font)}
+.notes-row{margin-top:10px}
+.notes-input{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-family:var(--font);background:var(--surface);color:var(--text);resize:none}
+.save-notes-btn{margin-top:6px;padding:5px 12px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;font-weight:500;cursor:pointer;font-family:var(--font);color:var(--text2)}
+.timeline{margin-top:16px;padding-top:16px;border-top:1px solid var(--border)}
+.timeline-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px}
+.timeline-item{display:flex;gap:10px;margin-bottom:12px}
+.timeline-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px}
+.timeline-dot.green{background:var(--green)}
+.timeline-dot.orange{background:var(--orange)}
+.timeline-content{flex:1}
+.timeline-date{font-size:11px;color:var(--text3);margin-bottom:2px}
+.timeline-text{font-size:12px;color:var(--text2)}
+.timeline-note{font-size:12px;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:6px 10px;margin-top:6px;font-style:italic}
+.company-detail-header{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:16px;box-shadow:var(--shadow)}
+.company-detail-name{font-size:22px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px}
+.company-detail-meta{display:flex;flex-wrap:wrap;gap:16px;margin-bottom:16px}
+.company-detail-meta-item{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--text2)}
+.company-sap-badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.company-sections{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.section-label{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.section-text{font-size:13px;color:var(--text2);line-height:1.6}
+.section-text.empty{color:var(--text3);font-style:italic}
+.source-links{display:flex;flex-direction:column;gap:4px}
+.source-link{font-size:12px;color:var(--accent);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
+.source-link:hover{text-decoration:underline}
+.prospect-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:12px;box-shadow:var(--shadow);overflow:hidden}
+.prospect-card.archived{opacity:.7;border-style:dashed}
+.prospect-card-header{padding:16px 20px;display:flex;align-items:flex-start;justify-content:space-between;border-bottom:1px solid var(--border)}
+.prospect-info h3{font-size:15px;font-weight:700}
+.prospect-info .prospect-title{font-size:13px;color:var(--text2);margin-top:2px}
+.prospect-contact{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap}
+.prospect-contact-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text2)}
+.prospect-status-row{display:flex;gap:8px;align-items:center;flex-shrink:0}
+.prospect-messages{padding:16px 20px}
+.message-block{margin-bottom:16px}
+.message-step-header{display:flex;align-items:center;margin-bottom:8px}
+.message-step-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);display:flex;align-items:center;gap:6px}
+.done-check{width:16px;height:16px;background:var(--green);border-radius:50%;display:inline-flex;align-items:center;justify-content:center}
+.done-check svg{width:10px;height:10px;fill:white}
+.sent-date{font-size:11px;color:var(--text3);font-weight:400;text-transform:none;letter-spacing:0}
+.message-text{background:var(--surface2);border-radius:var(--radius-sm);padding:12px;font-size:13px;line-height:1.6;color:var(--text);margin-bottom:8px;max-height:80px;overflow:hidden;position:relative;cursor:pointer;transition:max-height .3s}
+.message-text.expanded{max-height:600px}
+.message-text-fade{position:absolute;bottom:0;left:0;right:0;height:30px;background:linear-gradient(transparent,var(--surface2));pointer-events:none}
+.message-text.expanded .message-text-fade{display:none}
+.message-actions{display:flex;gap:8px}
+.data-table{width:100%;border-collapse:collapse}
+.data-table th{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:10px 16px;text-align:left;border-bottom:1px solid var(--border);background:var(--surface2)}
+.data-table td{padding:12px 16px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle}
+.data-table tr:last-child td{border-bottom:none}
+.data-table tr:hover td{background:var(--surface2);cursor:pointer}
+.data-table tr:hover td:first-child{color:var(--accent)}
+.step-progress{display:flex;gap:3px}
+.step-dot{width:8px;height:8px;border-radius:50%;background:var(--border)}
+.step-dot.done{background:var(--green)}
+.step-dot.current{background:var(--accent)}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:20px}
+.tab{padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;transition:all .15s;background:none;border-top:none;border-left:none;border-right:none;font-family:var(--font)}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600}
+.upload-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+.upload-zone{border:2px dashed var(--border);border-radius:var(--radius);padding:40px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface)}
+.upload-zone:hover,.upload-zone.drag-over{border-color:var(--accent);background:var(--accent-light)}
+.upload-zone-icon{width:48px;height:48px;background:var(--surface2);border-radius:12px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.upload-zone h3{font-size:15px;font-weight:600;margin-bottom:6px}
+.upload-zone p{font-size:13px;color:var(--text3)}
+.upload-result{margin-top:14px;padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500}
+.upload-result.success{background:var(--green-light);color:var(--green)}
+.upload-result.error{background:var(--red-light);color:var(--red)}
+.upload-result.loading{background:var(--accent-light);color:var(--accent)}
+.analytics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.chart-bar-container{padding:16px 20px}
+.chart-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.chart-bar-label{font-size:12px;color:var(--text2);width:90px;flex-shrink:0}
+.chart-bar-track{flex:1;height:8px;background:var(--surface2);border-radius:4px;overflow:hidden}
+.chart-bar-fill{height:100%;border-radius:4px;background:var(--accent);transition:width .6s ease}
+.chart-bar-count{font-size:12px;font-weight:600;color:var(--text);width:24px;text-align:right;flex-shrink:0}
+.activity-table-wrap{overflow-x:auto}
+.back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;color:var(--text2);cursor:pointer;margin-bottom:16px;font-weight:500}
+.back-btn:hover{color:var(--accent)}
+.back-btn svg{width:16px;height:16px}
+.search-wrap{position:relative;margin-bottom:16px}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:14px;height:14px;fill:var(--text3);pointer-events:none}
+.search-wrap input{width:100%;padding:9px 14px 9px 32px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font);background:var(--surface);color:var(--text)}
+.search-wrap input:focus{outline:none;border-color:var(--accent)}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:white;padding:12px 18px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;z-index:9999;display:none}
+.toast.show{display:block;animation:toastIn .3s ease}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+/* Skeleton loading */
+.skeleton{background:linear-gradient(90deg,var(--surface2) 25%,var(--border) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.2s infinite;border-radius:6px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.skeleton-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:12px}
+.sk-line{height:12px;margin-bottom:8px}
+.sk-title{height:16px;width:40%;margin-bottom:12px}
+.sk-short{width:25%}
+.sk-med{width:60%}
+body.dark{--bg:#111110;--surface:#1c1c1a;--surface2:#252523;--border:#2e2e2b;--text:#f0ede8;--text2:#a09d98;--text3:#6b6860;--accent-light:#1e1a3d;--green-light:#0a2318;--red-light:#2a0f0f;--orange-light:#261508}
+.full-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.refresh-btn{font-size:11px;color:var(--text3);cursor:pointer;padding:3px 8px;border:1px solid var(--border);border-radius:20px;background:none;font-family:var(--font)}
+.refresh-btn:hover{color:var(--accent);border-color:var(--accent)}
+.cache-tag{font-size:10px;color:var(--text3);margin-left:8px}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+    <div class="logo-text"><h1>Spark</h1><p>SAP Outreach Platform</p></div>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section">
+      <div class="nav-label">Main</div>
+      <button class="nav-item active" onclick="showPage('dashboard')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</button>
+      <button class="nav-item" onclick="showPage('tasks')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Tasks</button>
+      <button class="nav-item" onclick="showPage('companies')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Companies</button>
+      <button class="nav-item" onclick="showPage('pipeline')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Pipeline</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Insights</div>
+      <button class="nav-item" onclick="showPage('analytics')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Analytics</button>
+      <button class="nav-item" onclick="showPage('activity')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Activity</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Tools</div>
+      <button class="nav-item" onclick="showPage('upload')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Upload</button>
+    </div>
+  </nav>
+  <div class="sidebar-user">
+    <div class="user-avatar">AH</div>
+    <div class="user-info"><div class="user-name">Ahmed H.</div><div class="user-plan">Pro Plan</div></div>
+    <button class="theme-btn" onclick="toggleTheme()"><svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div><div class="topbar-title" id="topbar-title">Dashboard</div><div class="topbar-sub" id="topbar-sub"></div></div>
+    <div class="topbar-right">
+      <button class="download-btn" onclick="downloadExcel()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</button>
+      <button class="upload-btn" onclick="showPage('upload')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>Upload</button>
+    </div>
+  </div>
+  <div class="page-content" id="page-content"></div>
+</main>
+<div class="toast" id="toast"></div>
+
+<script>
+const API='https://script.google.com/macros/s/AKfycbwJXd8VS9F_NVSxuhva6JqJ398q9Jk9O419uitKAQW6yDkNcCAJkdJk4BKEKqg-aUQc-Q/exec';
+const IMGBB='78d076b6b3ce492b51f2219de8166a29';
+
+let _D=null;
+let _CC={};
+let currentPage='dashboard', currentCompany=null, _pipelineTab='active';
+
+function apiRaw(params){
+  const url=API+'?'+Object.entries(params).map(([k,v])=>k+'='+encodeURIComponent(v)).join('&');
+  return fetch(url).then(r=>r.json());
+}
+function loadAll(){
+  return apiRaw({action:'all'}).then(data=>{_D=data;return data;});
+}
+function apiWrite(params){
+  return apiRaw(params).then(res=>{loadAll().catch(()=>{});return res;});
+}
+
+function toast(msg,dur=3000){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),dur);}
+function copyText(t){navigator.clipboard.writeText(t).then(()=>toast('Copied'));}
+function toggleTheme(){document.body.classList.toggle('dark');}
+function toggleMsg(id){document.getElementById(id)?.classList.toggle('expanded');}
+function stepDots(s){let h='<div class="step-progress">';for(let i=1;i<=5;i++)h+=`<div class="step-dot ${i<s?'done':i===s?'current':''}"></div>`;return h+'</div>';}
+function priorityBadge(p){if(!p)return'';return`<span class="badge ${p==='High'?'badge-red':p==='Medium'?'badge-orange':'badge-gray'}">${p}</span>`;}
+function statusBadge(s){if(!s)return'';const m={'Active':'badge-green','Follow Up Scheduled':'badge-orange','Meeting':'badge-purple','Not Interested':'badge-red','Paused':'badge-gray','Responded':'badge-purple','Converted':'badge-green'};return`<span class="badge ${m[s]||'badge-gray'}">${s}</span>`;}
+function esc(s){return String(s||'').replace(/"/g,'""');}
+function clean(s){const v=String(s||'');return(v===''||v==='Not found'||v==='Not available')?'':v;}
+function skeletonCards(n){return Array(n||3).fill(0).map(()=>'<div class="skeleton-card"><div class="skeleton sk-line sk-title"></div><div class="skeleton sk-line sk-med"></div><div class="skeleton sk-line sk-short"></div></div>').join('');}
+
+function showPage(page,extra){
+  currentPage=page;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  const nm={dashboard:0,tasks:1,companies:2,pipeline:3,analytics:4,activity:5,upload:6};
+  const items=document.querySelectorAll('.nav-item');
+  if(nm[page]!==undefined&&items[nm[page]])items[nm[page]].classList.add('active');
+  const titles={dashboard:'Dashboard',tasks:'Tasks',companies:'Companies',pipeline:'Pipeline',analytics:'Analytics',activity:'Activity Log',upload:'Upload',company:'Company Detail'};
+  document.getElementById('topbar-title').textContent=titles[page]||page;
+  document.getElementById('topbar-sub').textContent=new Date().toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  if(page==='upload'){loadUpload();return;}
+  document.getElementById('page-content').innerHTML=skeletonCards(page==='dashboard'?2:4);
+  if(_D)renderPage(page,extra);
+}
+function renderPage(page,extra){
+  if(page==='dashboard')renderDashboard();
+  else if(page==='tasks')renderTasks();
+  else if(page==='companies')renderCompanies();
+  else if(page==='company')loadCompany(extra);
+  else if(page==='pipeline')renderPipeline();
+  else if(page==='analytics')renderAnalytics();
+  else if(page==='activity')renderActivity();
+}
+
+// EXPORT
+function downloadExcel(){
+  if(!_D){toast('Data not loaded yet');return;}
+  const cos=_D.companies?.companies||[];
+  const pros=_D.pipeline?.prospects||[];
+  const acts=_D.activity?.activity||[];
+  const ac='#5B4FFF',gn='#16A34A',rd='#DC2626',or='#EA580C',gr='#6B6860';
+  const hs=`background:${ac};color:white;font-weight:bold;padding:8px 12px;font-family:Arial;font-size:11px;border:1px solid #4a3fee`;
+  const cs=`padding:7px 12px;font-family:Arial;font-size:10px;border:1px solid #e2e0d8;vertical-align:top`;
+  const cb=`padding:7px 12px;font-family:Arial;font-size:10px;border:1px solid #e2e0d8;font-weight:bold;vertical-align:top`;
+  const ab='background:#f0efe9';
+  function sc(s){return s==='Active'?gn:s==='Not Interested'?rd:(s==='Follow Up Scheduled'||s==='Meeting')?or:gr;}
+  let cr=`<tr><th style="${hs}">Company</th><th style="${hs}">Industry</th><th style="${hs}">HQ</th><th style="${hs}">Headcount</th><th style="${hs}">SAP User</th><th style="${hs}">SAP Solutions</th><th style="${hs}">Overview</th><th style="${hs}">Prospects</th></tr>`;
+  cos.forEach((c,i)=>{const bg=i%2===0?'background:white':ab;cr+=`<tr style="${bg}"><td style="${cb}">${c.name||''}</td><td style="${cs}">${clean(c.industry)||'-'}</td><td style="${cs}">${clean(c.headquarter)||'-'}</td><td style="${cs}">${clean(c.headcount)||'-'}</td><td style="${cs};color:${c.sap_user==='Yes'?gn:gr};font-weight:bold">${c.sap_user||'-'}</td><td style="${cs}">${clean(c.sap_solutions)||'-'}</td><td style="${cs}">${clean(c.overview)||'-'}</td><td style="${cs};text-align:center">${c.prospects||0}</td></tr>`;});
+  let pr=`<tr><th style="${hs}">Prospect</th><th style="${hs}">Company</th><th style="${hs}">Title</th><th style="${hs}">Email</th><th style="${hs}">Phone</th><th style="${hs}">Status</th><th style="${hs}">Priority</th><th style="${hs}">Step</th><th style="${hs}">Follow Up</th></tr>`;
+  pros.forEach((p,i)=>{const bg=i%2===0?'background:white':ab;const pc=p.priority==='High'?rd:p.priority==='Medium'?or:gr;pr+=`<tr style="${bg}"><td style="${cb}">${p.name||''}</td><td style="${cs}">${p.company||''}</td><td style="${cs}">${(p.title||'').split('|')[0].trim()}</td><td style="${cs}">${p.email||'-'}</td><td style="${cs}">${p.phone||'-'}</td><td style="${cs};color:${sc(p.status)};font-weight:bold">${p.status||''}</td><td style="${cs};color:${pc};font-weight:bold">${p.priority||''}</td><td style="${cs};text-align:center">${p.currentStep||1}/5</td><td style="${cs}">${p.followUpDate||'-'}</td></tr>`;});
+  let ar=`<tr><th style="${hs}">Date</th><th style="${hs}">Prospect</th><th style="${hs}">Company</th><th style="${hs}">Attempt</th><th style="${hs}">Type</th><th style="${hs}">Outcome</th></tr>`;
+  acts.forEach((a,i)=>{const bg=i%2===0?'background:white':ab;ar+=`<tr style="${bg}"><td style="${cs}">${a.date||''}</td><td style="${cb}">${a.prospect||''}</td><td style="${cs}">${a.company||''}</td><td style="${cs};text-align:center">${a.attempt||''}</td><td style="${cs}">${a.type||''}</td><td style="${cs}">${a.outcome||'-'}</td></tr>`;});
+  const date=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+  const html=`<html><head><meta charset="UTF-8"></head><body style="font-family:Arial;padding:20px;background:white"><div style="font-size:22px;font-weight:bold;color:#5B4FFF;margin-bottom:4px">Spark Export</div><div style="font-size:12px;color:#6b6860;margin-bottom:24px">Generated: ${date} | ${cos.length} companies | ${pros.length} prospects</div><div style="font-size:15px;font-weight:bold;color:#5B4FFF;margin-bottom:10px">Companies (${cos.length})</div><table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;margin-bottom:28px">${cr}</table><div style="font-size:15px;font-weight:bold;color:#5B4FFF;margin-bottom:10px">Prospects (${pros.length})</div><table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;margin-bottom:28px">${pr}</table><div style="font-size:15px;font-weight:bold;color:#5B4FFF;margin-bottom:10px">Activity Log (${acts.length})</div><table border="0" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;margin-bottom:28px">${ar}</table></body></html>`;
+  const blob=new Blob([html],{type:'application/vnd.ms-excel;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download='spark_export_'+new Date().toISOString().slice(0,10)+'.xls';a.click();URL.revokeObjectURL(url);
+  toast('Export downloaded');
+}
+
+// DASHBOARD
+function renderDashboard(){
+  const data=_D?.dashboard||{};
+  const m=data.metrics||{};
+  let html=`<div class="metrics-grid">
+    <div class="metric-card"><div class="metric-label">Companies</div><div class="metric-value">${m.totalCompanies||0}</div><span class="metric-sub">researched</span></div>
+    <div class="metric-card"><div class="metric-label">SAP Users</div><div class="metric-value">${m.sapUsers||0}</div><span class="metric-sub">${m.hitRate||0}% hit rate</span></div>
+    <div class="metric-card"><div class="metric-label">Prospects</div><div class="metric-value">${m.totalProspects||0}</div><span class="metric-sub">active</span></div>
+    <div class="metric-card"><div class="metric-label">Tasks Due</div><div class="metric-value">${m.followUpsDue||0}</div><span class="metric-sub ${m.followUpsDue>0?'orange':''}">${m.followUpsDue>0?m.followUpsDue+' need attention':'all clear'}</span></div>
+  </div>
+  <div class="panels-grid">
+    <div class="panel"><div class="panel-header"><span class="panel-title">Recent companies</span><span class="panel-link" onclick="showPage('companies')">View all</span></div><div class="panel-body">`;
+  if(!data.recentCompanies?.length)html+='<div class="empty-state">No companies yet</div>';
+  else data.recentCompanies.forEach(c=>{html+=`<div class="company-item" onclick="showPage('company','${encodeURIComponent(c.name)}')"><div><div class="company-name">${c.name}</div><div class="company-meta">${[c.industry,c.headquarter,c.headcount].filter(v=>v&&v!=='Not found').join(' - ')}</div></div><div style="display:flex;gap:6px;align-items:center">${c.sap_user==='Yes'?'<span class="badge badge-green">SAP</span>':''}<span class="badge badge-gray">${c.prospects||0}</span></div></div>`;});
+  html+=`</div></div><div class="panel"><div class="panel-header"><span class="panel-title">Tasks due today</span><span class="panel-link" onclick="showPage('tasks')">View all</span></div><div class="panel-body">`;
+  if(!data.dueTodayProspects?.length)html+='<div class="empty-state">No tasks due today</div>';
+  else data.dueTodayProspects.slice(0,5).forEach(p=>{html+=`<div class="company-item" onclick="showPage('tasks')"><div><div class="company-name">${p.name}</div><div class="company-meta">${p.company} - Step ${p.step}</div></div>${priorityBadge(p.priority)}</div>`;});
+  html+=`</div></div></div><div class="panel"><div class="panel-header"><span class="panel-title">Recent activity</span><span class="panel-link" onclick="showPage('activity')">View all</span></div><div class="panel-body">`;
+  if(!data.recentActivity?.length)html+='<div class="empty-state">No activity yet</div>';
+  else{html+=`<table class="data-table"><thead><tr><th>Date</th><th>Prospect</th><th>Company</th><th>Type</th><th>Outcome</th></tr></thead><tbody>`;data.recentActivity.forEach(a=>{html+=`<tr><td>${a.date||''}</td><td>${a.prospect||''}</td><td>${a.company||''}</td><td>${a.type||''}</td><td>${a.outcome||'-'}</td></tr>`;});html+='</tbody></table>';}
+  html+='</div></div>';
+  document.getElementById('page-content').innerHTML=html;
+}
+
+// TASKS
+function renderTasks(){
+  const tasks=_D?.tasks?.tasks||[];
+  if(!tasks.length){document.getElementById('page-content').innerHTML='<div class="empty-state" style="padding:60px;text-align:center"><div style="font-size:16px;font-weight:600;margin-bottom:6px">All caught up!</div><div style="color:var(--text3)">No tasks due today</div></div>';return;}
+  let html='';
+  tasks.forEach((t,ti)=>{
+    const ov=t.daysOverdue>0;
+    html+=`<div class="task-card ${ov?'overdue':'due-today'}" id="tc-${ti}">
+      <div class="task-header">
+        <div><div class="task-prospect">${t.prospectName}</div><div class="task-company">${t.company}</div>
+          <div class="task-contact">
+            ${t.email?`<div class="task-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>${t.email}</div>`:''}
+            ${t.phone?`<div class="task-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.44 2 2 0 0 1 3.59 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.07-.93a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>${t.phone}</div>`:''}
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <span class="badge ${ov?'badge-red':'badge-orange'}">${ov?t.daysOverdue+'d overdue':'Due today'}</span>
+          ${priorityBadge(t.priority)}
+        </div>
+      </div>
+      <div class="task-step-label">${t.stepLabel} - Step ${t.step}/5</div>
+      <div class="task-message" id="tm-${ti}" onclick="toggleMsg('tm-${ti}')">${(t.message||'').replace(/
+/g,'<br>')}<div class="msg-fade"></div></div>
+      <div class="task-actions">
+        <button class="copy-btn" onclick="copyText(${JSON.stringify(t.message||'')})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>
+        <button class="done-btn" id="db-${ti}" onclick="markTaskDone(${ti},'${encodeURIComponent(t.prospectName)}','${encodeURIComponent(t.company)}',${t.step})">Mark as sent</button>
+      </div>
+      <div class="outcome-panel" id="op-${ti}">
+        <div class="outcome-label">What was the outcome?</div>
+        <div class="outcome-options">
+          <button class="outcome-opt" onclick="selectTaskOutcome(${ti},'follow_up')">Follow Up</button>
+          <button class="outcome-opt" onclick="selectTaskOutcome(${ti},'meeting')">Meeting Scheduled</button>
+          <button class="outcome-opt" onclick="selectTaskOutcome(${ti},'not_interested')">Not Interested</button>
+        </div>
+        <div id="od-${ti}"></div>
+        <div class="notes-row">
+          <div class="outcome-label" style="margin-top:8px">Notes</div>
+          <textarea class="notes-input" id="ni-${ti}" rows="2" placeholder="Add notes...">${t.notes||''}</textarea>
+          <button class="save-notes-btn" onclick="saveTaskNotes(${ti},'${encodeURIComponent(t.prospectName)}','${encodeURIComponent(t.company)}')">Save notes</button>
+        </div>
+      </div>
+    </div>`;
+  });
+  document.getElementById('page-content').innerHTML=html;
+}
+
+window._tOutcomes={};
+function markTaskDone(ti,ep,ec,step){
+  const btn=document.getElementById('db-'+ti);btn.disabled=true;btn.textContent='Saving...';
+  apiWrite({action:'markDone',prospectName:decodeURIComponent(ep),companyName:decodeURIComponent(ec),step}).then(res=>{
+    if(res.success){btn.textContent='Sent';btn.classList.add('success');document.getElementById('op-'+ti)?.classList.add('open');}
+    else{btn.textContent=res.error||'Error';btn.disabled=false;}
+  });
+}
+function selectTaskOutcome(ti,type){
+  window._tOutcomes[ti]=type;
+  document.querySelectorAll('#op-'+ti+' .outcome-opt').forEach(b=>b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  const od=document.getElementById('od-'+ti);
+  const card=document.getElementById('tc-'+ti);
+  const pN=card.querySelector('.task-prospect').textContent;
+  const cN=card.querySelector('.task-company').textContent;
+  if(type==='not_interested'){
+    od.innerHTML='';
+    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN}).then(()=>{toast('Prospect archived');setTimeout(()=>renderTasks(),1500);});
+  }else{
+    if(!document.getElementById('dp-'+ti)){
+      od.innerHTML='<div class="date-picker-row"><input type="date" id="dp-'+ti+'"/><button class="save-outcome-btn" onclick="saveTaskOutcome('+ti+')">Save</button></div>';
+    }
+  }
+}
+function saveTaskOutcome(ti){
+  const type=window._tOutcomes[ti];
+  const date=document.getElementById('dp-'+ti)?.value;
+  if(!date){toast('Please pick a date');return;}
+  const card=document.getElementById('tc-'+ti);
+  apiWrite({action:'scheduleFollowUp',prospectName:card.querySelector('.task-prospect').textContent,companyName:card.querySelector('.task-company').textContent,date,type:type==='meeting'?'Meeting Scheduled':'Follow Up'}).then(res=>{
+    if(res.success)toast('Scheduled for '+date);else toast(res.error||'Error');
+  });
+}
+function saveTaskNotes(ti,ep,ec){
+  const notes=document.getElementById('ni-'+ti)?.value||'';
+  apiWrite({action:'saveNotes',prospectName:decodeURIComponent(ep),companyName:decodeURIComponent(ec),notes}).then(res=>{if(res.success)toast('Notes saved');});
+}
+
+// COMPANIES
+function renderCompanies(){
+  const cos=_D?.companies?.companies||[];
+  if(!cos.length){document.getElementById('page-content').innerHTML='<div class="empty-state" style="padding:60px">No companies yet.</div>';return;}
+  let html='<div class="search-wrap"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="co-search" placeholder="Search companies..." oninput="filterCompanies()"/></div><div class="full-panel"><table class="data-table" id="co-table"><thead><tr><th>Company</th><th>Industry</th><th>HQ</th><th>Headcount</th><th>SAP User</th><th>Prospects</th></tr></thead><tbody>';
+  cos.forEach(c=>{
+    const sapBadge=c.sap_user==='Yes'?'<span class="badge badge-green">Yes</span>':c.sap_user==='No'?'<span class="badge badge-gray">No</span>':'<span class="badge badge-gray">-</span>';
+    const ind=clean(c.industry)||'-';
+    const hq=clean(c.headquarter)||'-';
+    const hc=clean(c.headcount)||'-';
+    html+=`<tr onclick="showPage('company','${encodeURIComponent(c.name)}')"><td><strong>${c.name}</strong></td><td>${ind}</td><td>${hq}</td><td>${hc}</td><td>${sapBadge}</td><td>${c.prospects||0}</td></tr>`;
+  });
+  html+='</tbody></table></div>';
+  document.getElementById('page-content').innerHTML=html;
+}
+function filterCompanies(){
+  const q=document.getElementById('co-search')?.value.toLowerCase()||'';
+  document.querySelectorAll('#co-table tbody tr').forEach(r=>{r.style.display=r.textContent.toLowerCase().includes(q)?'':'none';});
+}
+
+// COMPANY DETAIL
+function loadCompany(encodedName){
+  const cName=decodeURIComponent(encodedName||'');
+  currentCompany=cName;
+  const cached=_CC[cName];
+  if(cached&&Date.now()-cached.ts<120000){renderCompanyDetail(cName,cached.data);return;}
+  apiRaw({action:'company',name:cName}).then(data=>{
+    _CC[cName]={data,ts:Date.now()};
+    renderCompanyDetail(cName,data);
+  });
+}
+
+function renderCompanyDetail(cName,data){
+  const c=data.company||{};
+  const prospects=data.prospects||[];
+  const sapBadges=[
+    c.sap_user==='Yes'?'<span class="badge badge-green">SAP User</span>':'<span class="badge badge-gray">Not SAP User</span>',
+    c.sap_partner==='Yes'?'<span class="badge badge-purple">SAP Partner</span>':'',
+    c.sap_solutions?`<span class="badge badge-orange">${c.sap_solutions}</span>`:''
+  ].filter(Boolean).join('');
+  const srcLinks=(c.source_links&&c.source_links!=='researched')?c.source_links.split(',').map(l=>l.trim()).filter(Boolean).map(l=>`<a href="${l}" target="_blank" class="source-link">${l}</a>`).join(''):'<span class="section-text empty">No sources found</span>';
+  let html=`<div class="back-btn" onclick="showPage('companies')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Back to companies</div>
+  <div class="company-detail-header">
+    <div class="company-detail-name">${c.name||cName}</div>
+    <div class="company-detail-meta">
+      ${c.industry&&c.industry!=='Not found'?`<div class="company-detail-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>${c.industry}</div>`:''}
+      ${c.headquarter&&c.headquarter!=='Not found'?`<div class="company-detail-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${c.headquarter}</div>`:''}
+      ${c.headcount&&c.headcount!=='Not found'?`<div class="company-detail-meta-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>${c.headcount}</div>`:''}
+    </div>
+    <div class="company-sap-badges">${sapBadges}</div>
+    <div class="company-sections">
+      <div><div class="section-label">Company Overview</div><div class="section-text ${!c.overview?'empty':''}">${c.overview||'Not available'}</div></div>
+      <div><div class="section-label">Pain Points</div><div class="section-text ${!c.pain_points||c.pain_points==='Not found'?'empty':''}">${c.pain_points||'Not found'}</div></div>
+      <div><div class="section-label">Strategic Priorities</div><div class="section-text ${!c.strategic?'empty':''}">${c.strategic||'Not available'}</div></div>
+      <div><div class="section-label">Business Challenges</div><div class="section-text ${!c.challenges?'empty':''}">${c.challenges||'Not available'}</div></div>
+      <div style="grid-column:1/-1"><div class="section-label">Source Links</div><div class="source-links">${srcLinks}</div></div>
+    </div>
+  </div>`;
+  const active=prospects.filter(p=>p.status!=='Not Interested'&&p.status!=='Paused');
+  const archived=prospects.filter(p=>p.status==='Not Interested'||p.status==='Paused');
+  html+=`<div style="font-size:16px;font-weight:700;margin-bottom:12px">${prospects.length} Prospect${prospects.length!==1?'s':''}</div>`;
+  if(!prospects.length)html+='<div class="empty-state" style="padding:40px;background:var(--surface);border-radius:var(--radius);border:1px solid var(--border)">No prospects yet.</div>';
+  else{
+    html+=buildProspectCards(active,c.name||cName,false);
+    if(archived.length){html+=`<div style="margin-top:24px;margin-bottom:12px;font-size:13px;font-weight:600;color:var(--text3)">ARCHIVED (${archived.length})</div>`;html+=buildProspectCards(archived,c.name||cName,true);}
+  }
+  document.getElementById('page-content').innerHTML=html;
+}
+
+function buildProspectCards(prospects,companyName,isArchived){
+  let html='';
+  const steps=[{label:'Message 1',key:'message1',step:1},{label:'Follow-up 1 (BDC)',key:'message2',step:2},{label:'Follow-up 2 (AI/BTP)',key:'message3',step:3},{label:'Follow-up 3',key:'message4',step:4},{label:'Email',key:'email',step:5}];
+  prospects.forEach((p,pi)=>{
+    const idx=isArchived?'a'+pi:String(pi);
+    const tp=p.touchpoints||[];
+    html+=`<div class="prospect-card ${isArchived?'archived':''}" id="pc-${idx}">
+      <div class="prospect-card-header">
+        <div class="prospect-info">
+          <h3>${p.name}</h3><div class="prospect-title">${p.title||''}</div>
+          <div class="prospect-contact">
+            ${p.email?`<div class="prospect-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>${p.email}</div>`:''}
+            ${p.phone?`<div class="prospect-contact-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13 19.79 19.79 0 0 1 1.61 4.44 2 2 0 0 1 3.59 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.08 6.08l1.07-.93a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>${p.phone}</div>`:''}
+          </div>
+        </div>
+        <div class="prospect-status-row">
+          ${p.followUpDate?`<span class="badge ${p.isOverdue?'badge-red':'badge-orange'}">${p.followUpDate}</span>`:''}
+          ${statusBadge(p.status)}${priorityBadge(p.priority)}${stepDots(p.currentStep)}
+        </div>
+      </div>
+      <div class="prospect-messages">`;
+    steps.forEach(mb=>{
+      const t=tp[mb.step-1]||{};
+      const msg=p.messages?p.messages[mb.key]||'':'';
+      const isDone=t.done;
+      html+=`<div class="message-block">
+        <div class="message-step-header">
+          <div class="message-step-label">
+            ${isDone?'<span class="done-check"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>':''}
+            ${mb.label}
+            ${isDone&&t.sent?`<span class="sent-date"> Sent ${t.sent}</span>`:''}
+            ${t.outcome?`<span class="sent-date"> ${t.outcome}</span>`:''}
+          </div>
+        </div>
+        <div class="message-text" id="mt-${idx}-${mb.step}" onclick="toggleMsg('mt-${idx}-${mb.step}')">${msg.replace(/
+/g,'<br>')||'<em style="color:var(--text3)">No message</em>'}<div class="message-text-fade"></div></div>
+        <div class="message-actions">
+          ${msg?`<button class="copy-btn" onclick="copyText(${JSON.stringify(msg)})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button>`:''}
+          ${!isDone&&!isArchived?`<button class="done-btn" id="cdb-${idx}-${mb.step}" onclick="markCompanyDone('${encodeURIComponent(p.name)}','${encodeURIComponent(companyName)}',${mb.step},'${idx}')">Mark as sent</button>`:(isDone?'<span class="badge badge-green">Sent</span>':'')}
+        </div>
+        <div class="outcome-panel" id="cop-${idx}-${mb.step}">
+          <div class="outcome-label">What was the outcome?</div>
+          <div class="outcome-options">
+            <button class="outcome-opt" onclick="selectCompanyOutcome('${idx}',${mb.step},'follow_up','${encodeURIComponent(p.name)}','${encodeURIComponent(companyName)}')">Follow Up</button>
+            <button class="outcome-opt" onclick="selectCompanyOutcome('${idx}',${mb.step},'meeting','${encodeURIComponent(p.name)}','${encodeURIComponent(companyName)}')">Meeting Scheduled</button>
+            <button class="outcome-opt" onclick="selectCompanyOutcome('${idx}',${mb.step},'not_interested','${encodeURIComponent(p.name)}','${encodeURIComponent(companyName)}')">Not Interested</button>
+          </div>
+          <div id="cod-${idx}-${mb.step}"></div>
+          <div class="notes-row" style="margin-top:10px">
+            <div class="outcome-label">Notes for this message</div>
+            <textarea class="notes-input" id="mn-${idx}-${mb.step}" rows="2" placeholder="Add notes about this message..."></textarea>
+            <button class="save-notes-btn" onclick="saveMsgNotes('${idx}',${mb.step},'${encodeURIComponent(p.name)}','${encodeURIComponent(companyName)}')">Save note</button>
+          </div>
+        </div>
+      </div>`;
+    });
+    // TIMELINE
+    const sentItems=steps.filter(mb=>tp[mb.step-1]&&tp[mb.step-1].done);
+    html+='<div class="timeline"><div class="timeline-title">Timeline</div>';
+    if(!sentItems.length&&!p.notes)html+='<div style="font-size:12px;color:var(--text3)">No activity yet</div>';
+    else{
+      sentItems.forEach(mb=>{
+        const t=tp[mb.step-1];
+        html+=`<div class="timeline-item"><div class="timeline-dot green"></div><div class="timeline-content"><div class="timeline-date">${t.sent||''}</div><div class="timeline-text">${mb.label} sent${t.outcome?' - <strong>'+t.outcome+'</strong>':''}</div></div></div>`;
+      });
+      if(p.notes)html+=`<div class="timeline-item"><div class="timeline-dot orange"></div><div class="timeline-content"><div class="timeline-date">Note</div><div class="timeline-note">${p.notes}</div></div></div>`;
+    }
+    html+=`</div>
+      <div class="notes-row" style="margin-top:12px">
+        <div class="outcome-label">Overall Notes</div>
+        <textarea class="notes-input" id="cn-${idx}" rows="2" placeholder="Add overall notes...">${p.notes||''}</textarea>
+        <button class="save-notes-btn" onclick="saveCompanyNotes('${idx}','${encodeURIComponent(p.name)}','${encodeURIComponent(companyName)}')">Save notes</button>
+      </div>
+    </div></div>`;
+  });
+  return html;
+}
+
+function markCompanyDone(ep,ec,step,idx){
+  const btn=document.getElementById('cdb-'+idx+'-'+step);
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  const cName=decodeURIComponent(ec);
+  apiWrite({action:'markDone',prospectName:decodeURIComponent(ep),companyName:cName,step}).then(res=>{
+    if(res.success){
+      if(btn){btn.textContent='Sent';btn.classList.add('success');}
+      document.getElementById('cop-'+idx+'-'+step)?.classList.add('open');
+      delete _CC[cName];
+    }else{
+      if(btn){btn.textContent=res.error||'Error';btn.disabled=false;}
+      toast(res.error||'Error');
+    }
+  });
+}
+function selectCompanyOutcome(idx,step,type,ep,ec){
+  document.querySelectorAll('#cop-'+idx+'-'+step+' .outcome-opt').forEach(b=>b.classList.remove('selected'));
+  event.target.classList.add('selected');
+  const od=document.getElementById('cod-'+idx+'-'+step);
+  const pN=decodeURIComponent(ep);
+  const cN=decodeURIComponent(ec);
+  if(type==='not_interested'){
+    od.innerHTML='';
+    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN}).then(()=>{
+      toast('Prospect archived - reloading...');
+      delete _CC[cN];
+      setTimeout(()=>loadCompany(encodeURIComponent(cN)),1200);
+    });
+  }else{
+    if(!document.getElementById('cdp-'+idx+'-'+step)){
+      od.innerHTML='<div class="date-picker-row"><input type="date" id="cdp-'+idx+'-'+step+'"/><button class="save-outcome-btn" onclick="saveCompanyOutcome(''+idx+'','+step+',''+ep+'',''+ec+'',''+type+'')">Save</button></div>';
+    }else{
+      const btn=od.querySelector('.save-outcome-btn');
+      if(btn)btn.setAttribute('onclick',"saveCompanyOutcome('"+idx+"',"+step+",'"+ep+"','"+ec+"','"+type+"')");
+    }
+  }
+}
+function saveCompanyOutcome(idx,step,ep,ec,type){
+  const date=document.getElementById('cdp-'+idx+'-'+step)?.value;
+  if(!date){toast('Please pick a date');return;}
+  apiWrite({action:'scheduleFollowUp',prospectName:decodeURIComponent(ep),companyName:decodeURIComponent(ec),date,type:type==='meeting'?'Meeting Scheduled':'Follow Up'}).then(res=>{
+    if(res.success)toast('Scheduled for '+date);else toast(res.error||'Error');
+  });
+}
+function saveCompanyNotes(idx,ep,ec){
+  const notes=document.getElementById('cn-'+idx)?.value||'';
+  apiWrite({action:'saveNotes',prospectName:decodeURIComponent(ep),companyName:decodeURIComponent(ec),notes}).then(res=>{if(res.success)toast('Notes saved');});
+}
+function saveMsgNotes(idx,step,ep,ec){
+  const msgNote=document.getElementById('mn-'+idx+'-'+step)?.value||'';
+  if(!msgNote.trim()){toast('Please write a note first');return;}
+  const labels={1:'Message 1',2:'Follow-up 1',3:'Follow-up 2',4:'Follow-up 3',5:'Email'};
+  const mainEl=document.getElementById('cn-'+idx);
+  const existing=mainEl?.value||'';
+  const newNote=(existing?existing+'
+':'')+`[${labels[step]}]: ${msgNote}`;
+  if(mainEl)mainEl.value=newNote;
+  apiWrite({action:'saveNotes',prospectName:decodeURIComponent(ep),companyName:decodeURIComponent(ec),notes:newNote}).then(res=>{
+    if(res.success){toast('Note saved');const el=document.getElementById('mn-'+idx+'-'+step);if(el)el.value='';}
+  });
+}
+
+// PIPELINE
+function renderPipeline(tab){
+  _pipelineTab=tab||_pipelineTab||'active';
+  const all=_D?.pipeline?.prospects||[];
+  const active=all.filter(p=>p.status!=='Not Interested'&&p.status!=='Paused');
+  const archived=all.filter(p=>p.status==='Not Interested'||p.status==='Paused');
+  const list=_pipelineTab==='active'?active:archived;
+  let html=`<div class="tabs"><button class="tab ${_pipelineTab==='active'?'active':''}" onclick="renderPipeline('active')">Active (${active.length})</button><button class="tab ${_pipelineTab==='archived'?'active':''}" onclick="renderPipeline('archived')">Archived (${archived.length})</button></div>`;
+  if(!list.length)html+=`<div class="empty-state" style="padding:60px">${_pipelineTab==='active'?'No active prospects.':'No archived prospects.'}</div>`;
+  else{
+    html+='<div class="full-panel"><table class="data-table"><thead><tr><th>Prospect</th><th>Company</th><th>Title</th><th>Step</th><th>Follow Up</th><th>Status</th><th>Priority</th></tr></thead><tbody>';
+    list.forEach(p=>{html+=`<tr onclick="showPage('company','${encodeURIComponent(p.company)}')"><td><strong>${p.name}</strong></td><td>${p.company}</td><td style="color:var(--text2)">${(p.title||'-').split('|')[0].trim()}</td><td>${stepDots(p.currentStep)}</td><td>${p.isOverdue?`<span class="badge badge-red">${p.followUpDate}</span>`:p.followUpDate?`<span class="badge badge-orange">${p.followUpDate}</span>`:'<span class="badge badge-gray">Not set</span>'}</td><td>${statusBadge(p.status)}</td><td>${priorityBadge(p.priority)}</td></tr>`;});
+    html+='</tbody></table></div>';
+  }
+  document.getElementById('page-content').innerHTML=html;
+}
+
+// ANALYTICS
+function renderAnalytics(){
+  const data=_D?.analytics||{};
+  const s=data.summary||{};
+  const sb=data.stepBreakdown||[];
+  const o=data.outcomes||{};
+  const tc=data.topCompanies||[];
+  const maxStep=Math.max(...sb.map(x=>x.count),1);
+  const total=(o.positive||0)+(o.negative||0)+(o.noReply||0)||1;
+  let html=`<div class="analytics-grid">
+    <div class="metric-card"><div class="metric-label">Total Sent</div><div class="metric-value">${s.totalSent||0}</div><span class="metric-sub">messages</span></div>
+    <div class="metric-card"><div class="metric-label">Response Rate</div><div class="metric-value">${s.responseRate||0}%</div><span class="metric-sub">of prospects</span></div>
+    <div class="metric-card"><div class="metric-label">Best Step</div><div class="metric-value" style="font-size:18px">${s.bestStep||'-'}</div><span class="metric-sub">${s.bestStepCount||0} sent</span></div>
+  </div>
+  <div class="panels-grid">
+    <div class="panel"><div class="panel-header"><span class="panel-title">Messages by step</span></div><div class="chart-bar-container">`;
+  sb.forEach(i=>{const p=Math.round((i.count/maxStep)*100);html+=`<div class="chart-bar-row"><div class="chart-bar-label">${i.label}</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${p}%"></div></div><div class="chart-bar-count">${i.count}</div></div>`;});
+  html+=`</div></div><div class="panel"><div class="panel-header"><span class="panel-title">Outcomes</span></div><div class="chart-bar-container">
+    <div class="chart-bar-row"><div class="chart-bar-label">Positive</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.round((o.positive||0)/total*100)}%;background:var(--green)"></div></div><div class="chart-bar-count">${o.positive||0}</div></div>
+    <div class="chart-bar-row"><div class="chart-bar-label">Negative</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.round((o.negative||0)/total*100)}%;background:var(--red)"></div></div><div class="chart-bar-count">${o.negative||0}</div></div>
+    <div class="chart-bar-row"><div class="chart-bar-label">No Reply</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.round((o.noReply||0)/total*100)}%;background:var(--text3)"></div></div><div class="chart-bar-count">${o.noReply||0}</div></div>
+  </div></div></div>`;
+  if(tc.length){const mx=Math.max(...tc.map(x=>x.count),1);html+='<div class="panel"><div class="panel-header"><span class="panel-title">Most active companies</span></div><div class="chart-bar-container">';tc.forEach(i=>{html+=`<div class="chart-bar-row"><div class="chart-bar-label">${i.name}</div><div class="chart-bar-track"><div class="chart-bar-fill" style="width:${Math.round((i.count/mx)*100)}%;background:var(--accent)"></div></div><div class="chart-bar-count">${i.count}</div></div>`;});html+='</div></div>';}
+  document.getElementById('page-content').innerHTML=html;
+}
+
+// ACTIVITY
+function renderActivity(){
+  const acts=_D?.activity?.activity||[];
+  if(!acts.length){document.getElementById('page-content').innerHTML='<div class="empty-state" style="padding:60px">No activity logged yet.</div>';return;}
+  let html='<div class="full-panel activity-table-wrap"><table class="data-table"><thead><tr><th>Date</th><th>Day</th><th>Prospect</th><th>Title</th><th>Company</th><th>Attempt</th><th>Type</th><th>Offered</th><th>Outcome</th></tr></thead><tbody>';
+  acts.forEach(a=>{html+=`<tr><td>${a.date||''}</td><td>${a.day||''}</td><td>${a.prospect||''}</td><td style="color:var(--text2)">${a.title||''}</td><td>${a.company||''}</td><td>${a.attempt||''}</td><td>${a.type||''}</td><td style="color:var(--text2)">${a.offered||''}</td><td>${a.outcome||'-'}</td></tr>`;});
+  html+='</tbody></table></div>';
+  document.getElementById('page-content').innerHTML=html;
+}
+
+// UPLOAD
+function loadUpload(){
+  document.getElementById('page-content').innerHTML=`<div class="upload-grid">
+    <div><div style="font-size:15px;font-weight:600;margin-bottom:12px">Company Screenshot</div>
+      <div class="upload-zone" id="co-zone" onclick="document.getElementById('co-input').click()" ondragover="dragOver(event,'co-zone')" ondragleave="dragLeave('co-zone')" ondrop="dropFile(event,'co-result','company')">
+        <div class="upload-zone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
+        <h3>Drop company screenshot</h3><p>LinkedIn company page screenshot</p>
+        <input type="file" id="co-input" accept="image/*" style="display:none" onchange="handleUpload(this,'co-result','company')">
+      </div><div id="co-result"></div>
+    </div>
+    <div><div style="font-size:15px;font-weight:600;margin-bottom:12px">Prospect Screenshot</div>
+      <div class="upload-zone" id="pr-zone" onclick="document.getElementById('pr-input').click()" ondragover="dragOver(event,'pr-zone')" ondragleave="dragLeave('pr-zone')" ondrop="dropFile(event,'pr-result','prospect')">
+        <div class="upload-zone-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="24" height="24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+        <h3>Drop prospect screenshot</h3><p>LinkedIn profile or Sales Navigator screenshot</p>
+        <input type="file" id="pr-input" accept="image/*" style="display:none" onchange="handleUpload(this,'pr-result','prospect')">
+      </div><div id="pr-result"></div>
+    </div>
+  </div>`;
+}
+function dragOver(e,z){e.preventDefault();document.getElementById(z)?.classList.add('drag-over');}
+function dragLeave(z){document.getElementById(z)?.classList.remove('drag-over');}
+function dropFile(e,resultId,type){e.preventDefault();dragLeave(type==='company'?'co-zone':'pr-zone');const f=e.dataTransfer?.files[0];if(!f)return;uploadFile(f,resultId,type);}
+function handleUpload(input,resultId,type){const f=input.files[0];if(!f)return;uploadFile(f,resultId,type);}
+function uploadFile(file,resultId,type){
+  const el=document.getElementById(resultId);
+  el.innerHTML='<div class="upload-result loading">Processing... this may take 30-60 seconds</div>';
+  const reader=new FileReader();
+  reader.onload=function(e){
+    const b64=e.target.result.split(',')[1];
+    const fd=new FormData();fd.append('image',b64);
+    fetch('https://api.imgbb.com/1/upload?key='+IMGBB,{method:'POST',body:fd})
+      .then(r=>r.json())
+      .then(imgRes=>{
+        if(!imgRes.success)throw new Error('Image upload failed');
+        return apiRaw({action:type==='company'?'uploadCompany':'uploadProspect',imageUrl:imgRes.data.url});
+      })
+      .then(res=>{
+        if(res.success){
+          el.innerHTML='<div class="upload-result success">'+(res.company||res.prospect||'Item')+' added successfully</div>';
+          toast('Upload successful');
+          loadAll().catch(()=>{});
+        }else{
+          el.innerHTML='<div class="upload-result error">'+( res.error||'Upload failed')+'</div>';
+        }
+      })
+      .catch(err=>{el.innerHTML='<div class="upload-result error">'+err.message+'</div>';});
+  };
+  reader.readAsDataURL(file);
+}
+
+// INIT
+document.getElementById('page-content').innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:60vh;flex-direction:column;gap:12px"><div class="spinner" style="width:24px;height:24px;border-width:3px"></div><div style="font-size:13px;color:var(--text3)">Loading Spark...</div></div>';
+loadAll().then(()=>{showPage('dashboard');}).catch(()=>{document.getElementById('page-content').innerHTML='<div class="empty-state" style="padding:60px">Failed to connect. Check your API connection.</div>';});
+</script>
+</body>
+</html>
