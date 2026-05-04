@@ -643,8 +643,7 @@ function saveMsgNotes(idx,step,ep,ec){
   const labels={1:'Message 1',2:'Follow-up 1',3:'Follow-up 2',4:'Follow-up 3',5:'Email'};
   const mainEl=document.getElementById('cn-'+idx);
   const existing=mainEl?.value||'';
-  const newNote=(existing?existing+'
-':'')+`[${labels[step]}]: ${msgNote}`;
+  const newNote=(existing?existing+'\n':'')+`[${labels[step]}]: ${msgNote}`;
   if(mainEl)mainEl.value=newNote;
   apiWrite({action:'saveNotes',prospectName:decodeURIComponent(ep),companyName:decodeURIComponent(ec),notes:newNote}).then(res=>{
     if(res.success){toast('Note saved');const el=document.getElementById('mn-'+idx+'-'+step);if(el)el.value='';}
