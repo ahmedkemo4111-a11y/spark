@@ -505,8 +505,9 @@ function markTaskDone(ti,ep,ec,step){
     }
   });
 }
-function selectTaskOutcome(ti,type){
+function selectTaskOutcome(ti,type,step){
   window._tOutcomes[ti]=type;
+  window._tOutcomes['step_'+ti]=step||1;
   document.querySelectorAll('#op-'+ti+' .outcome-opt').forEach(b=>b.classList.remove('selected'));
   event.target.classList.add('selected');
   const od=document.getElementById('od-'+ti);
@@ -515,7 +516,8 @@ function selectTaskOutcome(ti,type){
   const cN=card.querySelector('.task-company').textContent;
   if(type==='not_interested'){
     od.innerHTML='';
-    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN}).then(()=>{
+    const closeStep=window._tOutcomes['step_'+ti]||1;
+    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN,step:closeStep}).then(()=>{
       toast('Prospect archived');
       setTimeout(()=>renderTasks(),1500);
     });
@@ -538,7 +540,8 @@ function saveTaskOutcome(ti){
   const date=document.getElementById('dp-'+ti)?.value;
   if(!date){toast('Please pick a date');return;}
   const card=document.getElementById('tc-'+ti);
-  apiWrite({action:'scheduleFollowUp',prospectName:card.querySelector('.task-prospect').textContent,companyName:card.querySelector('.task-company').textContent,date,type:type==='meeting'?'Meeting Scheduled':'Follow Up'}).then(res=>{
+  const taskStep=window._tOutcomes['step_'+ti]||1;
+  apiWrite({action:'scheduleFollowUp',prospectName:card.querySelector('.task-prospect').textContent,companyName:card.querySelector('.task-company').textContent,date,step:taskStep,type:type==='meeting'?'Meeting Scheduled':'Follow Up'}).then(res=>{
     if(res.success)toast('Scheduled for '+date);else toast(res.error||'Error');
   });
 }
@@ -739,7 +742,8 @@ function selectCompanyOutcome(idx,step,type,ep,ec){
   const cN=decodeURIComponent(ec);
   if(type==='not_interested'){
     od.innerHTML='';
-    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN}).then(()=>{
+    const closeStep=window._tOutcomes['step_'+ti]||1;
+    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN,step:closeStep}).then(()=>{
       toast('Prospect archived - reloading...');
       delete _CC[cN];
       setTimeout(()=>loadCompany(encodeURIComponent(cN)),1200);
@@ -771,7 +775,7 @@ function selectCompanyOutcome(idx,step,type,ep,ec){
 function saveCompanyOutcome(idx,step,ep,ec,type){
   const date=document.getElementById('cdp-'+idx+'-'+step)?.value;
   if(!date){toast('Please pick a date');return;}
-  apiWrite({action:'scheduleFollowUp',prospectName:decodeURIComponent(ep),companyName:decodeURIComponent(ec),date,type:type==='meeting'?'Meeting Scheduled':'Follow Up'}).then(res=>{
+  apiWrite({action:'scheduleFollowUp',prospectName:decodeURIComponent(ep),companyName:decodeURIComponent(ec),date,step:step,type:type==='meeting'?'Meeting Scheduled':'Follow Up'}).then(res=>{
     if(res.success)toast('Scheduled for '+date);else toast(res.error||'Error');
   });
 }
