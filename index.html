@@ -517,9 +517,9 @@ function selectTaskOutcome(ti,type,step){
   if(type==='not_interested'){
     od.innerHTML='';
     const closeStep=window._tOutcomes['step_'+ti]||1;
-    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN,step:closeStep}).then(()=>{
-      toast('Prospect archived');
-      setTimeout(()=>renderTasks(),1500);
+    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN,step:closeStep}).then(res=>{
+      if(res.success){toast('Prospect archived');setTimeout(()=>renderTasks(),1500);}
+      else{toast('Error: '+(res.error||'Could not archive'));}
     });
   }else{
     if(!document.getElementById('dp-'+ti)){
@@ -742,10 +742,14 @@ function selectCompanyOutcome(idx,step,type,ep,ec){
   const cN=decodeURIComponent(ec);
   if(type==='not_interested'){
     od.innerHTML='';
-    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN,step:step}).then(()=>{
-      toast('Prospect archived - reloading...');
-      delete _CC[cN];
-      setTimeout(()=>loadCompany(encodeURIComponent(cN)),1200);
+    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN,step:step}).then(res=>{
+      if(res.success){
+        toast('Prospect archived - reloading...');
+        delete _CC[cN];
+        setTimeout(()=>loadCompany(encodeURIComponent(cN)),1200);
+      }else{
+        toast('Error: '+(res.error||'Could not archive'));
+      }
     });
   }else{
     if(!document.getElementById('cdp-'+idx+'-'+step)){
