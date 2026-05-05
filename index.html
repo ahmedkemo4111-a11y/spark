@@ -742,8 +742,7 @@ function selectCompanyOutcome(idx,step,type,ep,ec){
   const cN=decodeURIComponent(ec);
   if(type==='not_interested'){
     od.innerHTML='';
-    const closeStep=window._tOutcomes['step_'+ti]||1;
-    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN,step:closeStep}).then(()=>{
+    apiWrite({action:'closeProspect',prospectName:pN,companyName:cN,step:step}).then(()=>{
       toast('Prospect archived - reloading...');
       delete _CC[cN];
       setTimeout(()=>loadCompany(encodeURIComponent(cN)),1200);
