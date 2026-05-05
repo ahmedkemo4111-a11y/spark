@@ -173,7 +173,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 .upload-result.success{background:var(--green-light);color:var(--green)}
 .upload-result.error{background:var(--red-light);color:var(--red)}
 .upload-result.loading{background:var(--accent-light);color:var(--accent)}
-.analytics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.analytics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
 .chart-bar-container{padding:16px 20px}
 .chart-bar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 .chart-bar-label{font-size:12px;color:var(--text2);width:90px;flex-shrink:0}
@@ -846,7 +846,8 @@ function renderAnalytics(){
   const total=(o.positive||0)+(o.negative||0)+(o.noReply||0)||1;
   let html='<div class="analytics-grid">'
     +'<div class="metric-card"><div class="metric-label">Total Sent</div><div class="metric-value">'+(s.totalSent||0)+'</div><span class="metric-sub">messages</span></div>'
-    +'<div class="metric-card"><div class="metric-label">Response Rate</div><div class="metric-value">'+(s.responseRate||0)+'%</div><span class="metric-sub">of prospects</span></div>'
+    +'<div class="metric-card"><div class="metric-label">Prospect Rate</div><div class="metric-value">'+(s.responseRate||0)+'%</div><span class="metric-sub">'+(s.totalProspects||0)+' prospects</span></div>'
+    +'<div class="metric-card"><div class="metric-label">Message Rate</div><div class="metric-value">'+(s.msgResponseRate||0)+'%</div><span class="metric-sub">'+(s.msgsWithOutcome||0)+' of '+(s.totalSent||0)+' have outcome</span></div>'
     +'<div class="metric-card"><div class="metric-label">Best Step</div><div class="metric-value" style="font-size:18px">'+(s.bestStep||'-')+'</div><span class="metric-sub">'+(s.bestStepCount||0)+' sent</span></div>'
     +'</div><div class="panels-grid">'
     +'<div class="panel"><div class="panel-header"><span class="panel-title">Messages by step</span></div><div class="chart-bar-container">';
